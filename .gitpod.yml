@@ -1,0 +1,17 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 8080
+    onOpen: open-preview
+
+tasks:
+  - init: |
+      pip install --upgrade poetry &&
+      poetry install
+    command: |
+      poetry run gunicorn -b0.0.0.0:8080 app:api
+
+vscode:
+  extensions:
+    - ms-python.python
