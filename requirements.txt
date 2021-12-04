@@ -8,6 +8,7 @@ h11==0.12.0
 httptools==0.2.0
 idna==3.3
 iso8601==0.1.16
+loguru==0.5.3
 pydantic==1.8.2
 pypika-tortoise==0.1.1
 python-dotenv==0.19.2

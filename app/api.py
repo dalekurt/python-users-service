@@ -9,9 +9,9 @@ import fastapi
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
-# import logging
+import logging
 
-# logging.basicConfig(filename='logs/app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -115,7 +115,7 @@ def index():
     Returns:
         JSON-formated response.
     """
-    return {"message": "Hello World"}
+    return {"message": "Users services in running"}
 
 
 @app.post("/users")
