@@ -2,12 +2,16 @@
 This module implements user authentication
 """
 
+from os import stat
 from typing import Optional
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status, HTTPException
 import fastapi
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
+# import logging
+
+# logging.basicConfig(filename='logs/app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 app = FastAPI()
 
@@ -90,12 +94,103 @@ users = [{
   "is_active": False
 }]
 
+# Find a user
 def find_user(id):
     """Find a user from the users list
     """
     for u in users:
         if u["id"] == id:
             return u
+
+# Find user index
+def find_index_user(id):
+  for i, p in enumerate(users):
+    if p['id'] == id:
+      return i
+
+
+@app.get("/")
+def index():
+    """Index
+    Returns:
+        JSON-formated response.
+    """
+    return {"message": "Hello World"}
+
+
+@app.post("/users")
+def create_user(user: User, status_code=status.HTTP_201_CREATED):
+    """Create a user
+    Returns:
+        JSON-formated response.
+    """
+    user_dict = user.dict()
+    user_dict['id'] = randrange(0,99999)
+    users.append(user_dict)
+    # TODO: Add logging
+    return {"data": user_dict}
+
+
+@app.get("/users")
+def get_users():
+    """Get users
+    Returns:
+        JSON-formated response.
+    """
+    # TODO: Add Logging
+    return {"data": users}
+
+@app.get("/users/{id}")
+def get_user(id: int, response: Response):
+    """Get a user
+    Returns:
+        JSON-formated response.
+    """
+    user = find_user(id)
+    if not user:
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                          detail="User does not exist")
+      # logging.error(f'User with id {id} was not found')
+      # TODO: Add Logging
+    return {"data": user}
+
+
+@app.put("/users/{id}")
+def update_user(id: int, user: User):
+    """Update a user
+    Returns:
+        JSON-formated response.
+    """
+    index = find_index_user(id)
+
+    if index == None:
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                          detail=f"User does not exist")
+    
+    user_dict = user.dict()
+    user_dict["id"] = id
+    users[index] = user_dict
+    # TODO: Add Logging
+    # return {"message": "User updated successfully"} 
+    return {"data": user_dict}
+
+
+@app.delete("/users/{id}")
+def delete_user(id: int):
+    """Delete a user
+    Returns:
+        JSON-formated response.
+    """
+    index = find_index_user(id)
+    
+    # TODO: Add Logging
+    if index == None:
+      raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
+                          detail=f"User does not exist")
+    # return {"message": "User was successfully deleted"}
+    users.pop(index)
+    return Response(status_code=status.HTTP_204_NO_CONTENT) 
+
 
 @app.get("/status/alive")
 def alive():
@@ -115,64 +210,3 @@ def healthy():
         JSON-formated response.
     """
     return {"status": "User service is healthy"}
-
-
-@app.get("/")
-def index():
-    """Index
-    Returns:
-        JSON-formated response.
-    """
-    return {"message": "Hello World"}
-
-@app.post("/users")
-def create_user(user: User):
-    """Create a user
-    Returns:
-        JSON-formated response.
-    """
-    user_dict = user.dict()
-    user_dict['id'] = randrange(0,99999)
-    users.append(user_dict)
-    return {"data": user_dict}
-
-
-@app.get("/users")
-def get_users():
-    """Get users
-    Returns:
-        JSON-formated response.
-    """
-    return {"data": users}
-
-@app.get("/users/{id}")
-def get_user(id: int):
-    """Get a user
-    Returns:
-        JSON-formated response.
-    """
-    user = find_user(int(id))
-    return {"data": user}
-
-
-@app.put("/users/{id}")
-def update_user(user: User):
-    """Update a user
-    Returns:
-        JSON-formated response.
-    """
-
-    users.append(user.dict())
-    return {"data": user} 
-
-
-@app.delete("/users/{id}")
-def delete_user(user: User):
-    """Delete a user
-    Returns:
-        JSON-formated response.
-    """
-    print(user)
-    print(user.dict())
-    # return {"message": "User created"}
-    return {"data": user} 
