@@ -4,16 +4,27 @@ This module implements user authentication
 
 from os import stat
 from typing import Optional
-from fastapi import FastAPI, Response, status, HTTPException
-import fastapi
+from fastapi import FastAPI, Response, Request, status, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
 import logging
+from custom_logging import CustomizeLogger
+from pathlib import Path
+
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+config_path=Path(__file__).with_name("logging_config.json")
+def create_app() -> FastAPI:
+    app = FastAPI(title='Users', debug=True)
+    logger = CustomizeLogger.make_logger(config_path)
+    app.logger = logger
+
+    return app
+
+app = create_app()
+# app = FastAPI()
 
 class User(BaseModel):
     first_name: str 
@@ -115,7 +126,7 @@ def index():
     Returns:
         JSON-formated response.
     """
-    return {"message": "Users services in running"}
+    return {"message": "Users service in running"}
 
 
 @app.post("/users")
@@ -199,14 +210,25 @@ def alive():
     Returns:
         JSON-formated response.
     """
-    return {"status": "User service is alive"}
+    return {"status": "Users service is alive"}
 
 
 @app.get("/status/healthy")
-def healthy():
+def healthy(request: Request):
     """Status check function to verify the server can serve requests.
 
     Returns:
         JSON-formated response.
     """
-    return {"status": "User service is healthy"}
+    request.app.logger.info("Health status")
+    return {"status": "Users service is healthy"}
+
+@app.get('/custom-logger')
+def customize_logger(request: Request):
+    """Testing customer logger with an error
+    
+    """
+    request.app.logger.info("Here Is Your Info Log")
+    # a = 1 / 0
+    request.app.logger.error("Here Is Your Error Log")
+    return {'data': "Successfully Implemented Custom Log"}
