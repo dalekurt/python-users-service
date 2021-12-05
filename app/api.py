@@ -2,7 +2,7 @@
 This module implements user authentication
 """
 
-from os import stat
+import os
 from typing import Optional
 from fastapi import FastAPI, Response, Request, status, HTTPException
 from fastapi.params import Body
@@ -16,8 +16,11 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 config_path=Path(__file__).with_name("logging_config.json")
+
+FASTAPI_DEBUG = logging.getLevelName(os.environ.get("FASTAPI_DEBUG", "True"))
+
 def create_app() -> FastAPI:
-    app = FastAPI(title='Users', debug=True)
+    app = FastAPI(title='Users', debug=FASTAPI_DEBUG)
     logger = CustomizeLogger.make_logger(config_path)
     app.logger = logger
 
@@ -229,6 +232,6 @@ def customize_logger(request: Request):
     
     """
     request.app.logger.info("Here Is Your Info Log")
-    # a = 1 / 0
+    a = 1 / 0
     request.app.logger.error("Here Is Your Error Log")
     return {'data': "Successfully Implemented Custom Log"}

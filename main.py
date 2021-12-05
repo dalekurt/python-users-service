@@ -1,16 +1,12 @@
 import os
 import logging
-import sys
-
 from uvicorn import Config, Server
 from loguru import logger
-
 from custom_logging import CustomizeLogger
 from pathlib import Path
 
 
 PORT = int(os.environ.get("PORT", 8080))
-
 LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
 JSON_LOGS = True if os.environ.get("JSON_LOGS", "0") == "1" else False
 
