@@ -15,7 +15,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-config_path=Path(__file__).with_name("logging_config.json")
+config_path=Path("../").with_name("logging_config.json")
 
 FASTAPI_DEBUG = logging.getLevelName(os.environ.get("FASTAPI_DEBUG", "True"))
 
