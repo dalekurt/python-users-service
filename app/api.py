@@ -4,16 +4,39 @@ This module implements user authentication
 
 from os import stat
 from typing import Optional
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, APIRouter
 import fastapi
 from fastapi.params import Body
 from pydantic import BaseModel
 from random import randrange
-# import logging
+from utils import create_versioning_docs
 
 # logging.basicConfig(filename='logs/app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+description = """
+Users service
+"""
+prefix = "v1"
+app = FastAPI(
+    title="Users Service",
+    description=description,
+    version="0.0.1",
+    terms_of_service="http://dalekurtmurray.com/terms/",
+    contact={
+        "name": "Dale-Kurt Murray",
+        "url": "http://dalekurtmurray.com/contact/",
+        "email": "hello@dalekurtmurray.com",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+    docs_url=None, 
+    redoc_url=None
+)
 
-app = FastAPI()
+v1_router = APIRouter(prefix="/v1")
+
+create_versioning_docs(v1_router)
 
 class User(BaseModel):
     first_name: str 
@@ -109,7 +132,7 @@ def find_index_user(id):
       return i
 
 
-@app.get("/")
+@v1_router.get("/")
 def index():
     """Index
     Returns:
@@ -118,7 +141,7 @@ def index():
     return {"message": "Hello World"}
 
 
-@app.post("/users")
+@v1_router.post("/users")
 def create_user(user: User, status_code=status.HTTP_201_CREATED):
     """Create a user
     Returns:
@@ -131,7 +154,7 @@ def create_user(user: User, status_code=status.HTTP_201_CREATED):
     return {"data": user_dict}
 
 
-@app.get("/users")
+@v1_router.get("/users")
 def get_users():
     """Get users
     Returns:
@@ -140,7 +163,7 @@ def get_users():
     # TODO: Add Logging
     return {"data": users}
 
-@app.get("/users/{id}")
+@v1_router.get("/users/{id}")
 def get_user(id: int, response: Response):
     """Get a user
     Returns:
@@ -155,7 +178,7 @@ def get_user(id: int, response: Response):
     return {"data": user}
 
 
-@app.put("/users/{id}")
+@v1_router.put("/users/{id}")
 def update_user(id: int, user: User):
     """Update a user
     Returns:
@@ -175,7 +198,7 @@ def update_user(id: int, user: User):
     return {"data": user_dict}
 
 
-@app.delete("/users/{id}")
+@v1_router.delete("/users/{id}")
 def delete_user(id: int):
     """Delete a user
     Returns:
@@ -192,7 +215,7 @@ def delete_user(id: int):
     return Response(status_code=status.HTTP_204_NO_CONTENT) 
 
 
-@app.get("/status/alive")
+@v1_router.get("/status/alive")
 def alive():
     """Status check function to verify the service can start
     
@@ -202,7 +225,7 @@ def alive():
     return {"status": "User service is alive"}
 
 
-@app.get("/status/healthy")
+@v1_router.get("/status/healthy")
 def healthy():
     """Status check function to verify the server can serve requests.
 
@@ -210,3 +233,5 @@ def healthy():
         JSON-formated response.
     """
     return {"status": "User service is healthy"}
+
+app.include_router(v1_router)
