@@ -6,6 +6,7 @@ import os
 from typing import Optional
 from fastapi import FastAPI, Response, Request, status, HTTPException
 from fastapi.params import Body
+from fastapi_versioning import VersionedFastAPI, version
 from pydantic import BaseModel
 from random import randrange
 import logging
@@ -19,15 +20,42 @@ config_path=Path("../").with_name("logging_config.json")
 
 FASTAPI_DEBUG = logging.getLevelName(os.environ.get("FASTAPI_DEBUG", "True"))
 
-def create_app() -> FastAPI:
-    app = FastAPI(title='Users', debug=FASTAPI_DEBUG)
-    logger = CustomizeLogger.make_logger(config_path)
-    app.logger = logger
+# description = """
+# Users service
+# """
+# def create_app() -> FastAPI:
+#     # app = FastAPI(title='Users', debug=FASTAPI_DEBUG)
+#     app = FastAPI(
+#     title="Users Service",
+#     description=description,
+#     version="0.0.1",
+#     terms_of_service="http://dalekurtmurray.com/terms/",
+#     contact={
+#         "name": "Dale-Kurt Murray",
+#         "url": "http://dalekurtmurray.com/contact/",
+#         "email": "hello@dalekurtmurray.com",
+#     },
+#     license_info={
+#         "name": "Apache 2.0",
+#         "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+#     },
+#     docs_url=None, 
+#     redoc_url=None,
+#     debug=FASTAPI_DEBUG
+#     )
+    # logger = CustomizeLogger.make_logger(config_path)
+    # app.logger = logger
 
-    return app
+    # return app
 
-app = create_app()
-# app = FastAPI()
+# app = create_app()
+app = FastAPI(title="Users Service")
+
+# app = VersionedFastAPI(app,
+#     version_format='{major}',
+#     prefix_format='/v{major}',
+#     default_api_version=(1)
+#     )
 
 class User(BaseModel):
     first_name: str 
@@ -124,6 +152,7 @@ def find_index_user(id):
 
 
 @app.get("/")
+@version(1)
 def index():
     """Index
     Returns:
@@ -232,6 +261,11 @@ def customize_logger(request: Request):
     
     """
     request.app.logger.info("Here Is Your Info Log")
-    a = 1 / 0
+    # a = 1 / 0
     request.app.logger.error("Here Is Your Error Log")
     return {'data': "Successfully Implemented Custom Log"}
+
+app = VersionedFastAPI(app,
+  default_api_version=(1)
+)
+

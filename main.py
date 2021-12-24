@@ -5,6 +5,7 @@ from loguru import logger
 from custom_logging import CustomizeLogger
 from pathlib import Path
 
+logger = logging.getLogger(__name__)
 
 PORT = int(os.environ.get("PORT", 8080))
 LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
