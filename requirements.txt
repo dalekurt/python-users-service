@@ -17,7 +17,7 @@ PyYAML==6.0
 sniffio==1.2.0
 starlette==0.16.0
 tortoise==0.1.1
-tortoise-orm==0.17.8
+tortoise-orm==0.18.0
 typing_extensions==4.0.0
 uvicorn==0.15.0
 uvloop==0.16.0
