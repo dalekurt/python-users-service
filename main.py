@@ -1,10 +1,11 @@
-import os
 import logging
-from uvicorn import Config, Server
-from loguru import logger
-from custom_logging import CustomizeLogger
+import os
 from pathlib import Path
 
+from loguru import logger
+from uvicorn import Config, Server
+
+from custom_logging import CustomizeLogger
 
 PORT = int(os.environ.get("PORT", 8080))
 LOG_LEVEL = logging.getLevelName(os.environ.get("LOG_LEVEL", "DEBUG"))
